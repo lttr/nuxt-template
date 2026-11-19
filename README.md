@@ -63,3 +63,4 @@ SQLite through Drizzle and libsql. The DB file lives in `.data/`. To drop it, de
 - Hooks in `.claude/settings.json` fix up edited files and install dependencies in fresh worktrees.
 - Personal overrides go in `CLAUDE.local.md` and `.claude/settings.local.json`; both are gitignored. `.worktreeinclude` copies `.env` and `.data/` into new Claude Code worktrees.
 - `docs/decisions.md` records what the template chose and why.
+- `.claude/routines/template-update.md` is the prompt of a weekly cloud routine that updates dependencies and brings in new best practices (see `docs/decisions.md`). Delete it in apps made from the template.

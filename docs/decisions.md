@@ -116,7 +116,21 @@ There is no CI config, because every host differs. The README describes the mini
 | `.worktreeinclude`       | Copies `.env` and `.data/` (with the SQLite file) into new `claude --worktree` checkouts.                                                                                                                                                                                                             |
 | `.gitignore`             | Adds `CLAUDE.local.md`, `.claude/settings.local.json` and `.claude/worktrees/`.                                                                                                                                                                                                                       |
 
-The template adds no Nuxt-specific skill, no browser-tool choice and no dependency-update automation.
+The template adds no Nuxt-specific skill and no browser-tool choice.
+
+## Upkeep routine
+
+A weekly Claude Code cloud routine keeps the template itself current. Its prompt is one line, "Follow `.claude/routines/template-update.md`.", so the instructions live in the repo and the routine only sets the schedule.
+
+| Routine                                               | ID                              | Schedule                    |
+| ----------------------------------------------------- | ------------------------------- | --------------------------- |
+| nuxt-template: Update dependencies and best practices | `trig_015AaPZqgj5onx3JdidE8WGZ` | Mondays 02:37 Europe/Prague |
+
+- **Part 1** updates dependencies through the `/maintenance:dependency-update` skill from the `maintenance` plugin (`lttr/claude-marketplace`). The routine file adds what that skill can't know: which packages move together, the Vite+ catalog pins, and the **Revisit when** list below as the workaround record.
+- **Part 2** looks for best practices and new possibilities in the release notes and the upstream docs (Nuxt, Nuxt UI, Vite+, Vitest, Claude Code). Small changes backed by an official source are adopted as separate commits that also update this file. Bigger ones are only proposed in the PR body.
+- At most one PR per run, never automerged.
+- It runs in the cloud environment shared with another project, whose setup script installs Vite+ and the `maintenance` plugin. The environment has no Google Chrome, so the routine installs it with `playwright-core install chrome` before the e2e tests.
+- Apps created from the template can delete `.claude/routines/`. The routine only exists for this repo.
 
 ## Revisit when
 
