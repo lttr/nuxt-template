@@ -97,7 +97,7 @@ All checks must pass before code is pushed, but not before every commit: the ful
 
 | When                  | What                                                                                                                 |
 | --------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| After each agent edit | `vp fmt` and `vp lint --fix` on the edited file (Claude Code hook). Remaining lint errors are shown to Claude.       |
+| After each agent edit | `vp check --fix` on the edited file (Claude Code hook). Remaining errors are shown to Claude.                        |
 | Pre-commit            | `vp staged`: `vp check --fix` on staged files.                                                                       |
 | Pre-push              | `vp run check:all`: check, Vue lint, typecheck, all tests. The e2e setup builds the app, so it catches build errors. |
 
