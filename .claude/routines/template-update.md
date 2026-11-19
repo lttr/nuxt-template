@@ -14,6 +14,11 @@ One run opens at most one PR. Nothing is automerged.
 
 ## Before you start
 
+- `/maintenance:dependency-update` is not in this repo. It comes from the
+  `maintenance` plugin in the `lttr/claude-marketplace` marketplace, which
+  the cloud environment's setup script installs
+  (`claude plugin install maintenance@lttr-claude-marketplace`). If the skill
+  is missing, stop and say so. Don't improvise the procedure.
 - E2E tests launch the installed Google Chrome (`channel: "chrome"`). If
   `google-chrome --version` fails, run
   `vpx playwright-core install --with-deps chrome` once. If that is blocked,
