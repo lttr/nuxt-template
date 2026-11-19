@@ -4,7 +4,7 @@ A starter for small Nuxt apps: Nuxt 4 in compatibility-5 mode, Nuxt UI, Vite+ (`
 
 ## Getting started
 
-You need [Vite+](https://viteplus.dev/guide/) installed globally. It downloads the pinned Node and pnpm versions from `devEngines` in `package.json`.
+You need [Vite+](https://viteplus.dev/guide/) installed globally. It downloads the pinned Node version from `.node-version` and pnpm from `packageManager` in `package.json`.
 
 ```bash
 vp install
@@ -62,5 +62,5 @@ SQLite through Drizzle and libsql. The DB file lives in `.data/`. To drop it, de
 - `.claude/skills/run-app` starts and stops the app. `.claude/skills/verify` replaces the built-in `/verify`. Claude Code also runs a project `verify` skill before each commit, and the skill scales itself down for small changes.
 - Hooks in `.claude/settings.json` fix up edited files and install dependencies in fresh worktrees.
 - Personal overrides go in `CLAUDE.local.md` and `.claude/settings.local.json`; both are gitignored. `.worktreeinclude` copies `.env` and `.data/` into new Claude Code worktrees.
-- `docs/decisions.md` records what the template chose and why.
-- `.claude/routines/template-update.md` is the prompt of a weekly cloud routine that updates dependencies and brings in new best practices (see `docs/decisions.md`). Delete it in apps made from the template.
+- `docs/decisions.md` records what the setup chose and why.
+- `.claude/routines/template-update.md` is the prompt of a weekly cloud routine that updates dependencies and brings in new best practices. Delete it in apps made from the template.

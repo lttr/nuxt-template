@@ -43,16 +43,5 @@
     "vitest": "catalog:",
     "vue-tsc": "^3.3.14"
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.21.0",
-      "onFail": "download"
-    },
-    "runtime": {
-      "name": "node",
-      "version": "26.13.1",
-      "onFail": "download"
-    }
-  }
+  "packageManager": "pnpm@12.21.0"
 }
