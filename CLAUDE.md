@@ -30,3 +30,4 @@ Project code is imported explicitly. Vue, Nuxt and module APIs (`ref`, `useFetch
 
 - Env vars: only the ones in `.env.example`, mapped through `runtimeConfig`. Add new ones there.
 - Commits follow Conventional Commits.
+- `docs/decisions.md` records what the template chose and why. When a change adds, alters or removes one of those choices (dependency, config, convention, hook, skill), update the file in the same change. It must never disagree with the code.

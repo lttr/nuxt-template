@@ -7,7 +7,6 @@ export default defineNuxtConfig({
   imports: { scan: false },
   components: { dirs: [] },
 
-  devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
 
   future: { compatibilityVersion: 5 },
