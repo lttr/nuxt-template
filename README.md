@@ -30,7 +30,7 @@ The example page has a contact form that covers the form, validation, API route 
 
 | When                       | What runs                                                                                                                                      |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| On edit (Claude Code hook) | `vp fmt` and `vp lint --fix` on the edited file                                                                                                |
+| On edit (Claude Code hook) | `vp check --fix` on the edited file                                                                                                            |
 | Pre-commit                 | `vp staged`: format and lint the staged files                                                                                                  |
 | Pre-push                   | `vp run check:all`: check, template lint, typecheck, all tests. The e2e tests build the app for production, so this also catches build errors. |
 
@@ -44,7 +44,7 @@ There is no CI config, because every host differs. A minimal pipeline installs V
 
 ### Included as a layer: `layers/db`
 
-SQLite through Drizzle and libsql. The DB file lives in `.data/`. To drop it, delete `layers/db/`, the `db:*` scripts, the `drizzle-orm`, `@libsql/client` and `drizzle-kit` dependencies, and the `NUXT_DB_URL` line in `.env.example`.
+SQLite through Drizzle and libsql. The DB file lives in `.data/`. To drop it, delete `layers/db/`, the `db:*` scripts, the `drizzle-orm`, `@libsql/client` and `drizzle-kit` dependencies, `.claude/rules/db.md`, and the `NUXT_DB_URL` line in `.env.example`.
 
 ### Add when needed
 
@@ -62,4 +62,4 @@ SQLite through Drizzle and libsql. The DB file lives in `.data/`. To drop it, de
 - `.claude/skills/run-app` starts and stops the app. `.claude/skills/verify` replaces the built-in `/verify`. Claude Code also runs a project `verify` skill before each commit, and the skill scales itself down for small changes.
 - Hooks in `.claude/settings.json` fix up edited files and install dependencies in fresh worktrees.
 - Personal overrides go in `CLAUDE.local.md` and `.claude/settings.local.json`; both are gitignored. `.worktreeinclude` copies `.env` and `.data/` into new Claude Code worktrees.
-- Architecture decisions go in `docs/adr/`.
+- `docs/decisions.md` records what the template chose and why.
