@@ -105,15 +105,15 @@ There is no CI config, because every host differs. The README describes the mini
 
 ## Claude Code setup
 
-| File                     | Purpose                                                                                                                                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `CLAUDE.md`              | Commands, the imports rule, where things go, env vars, commit style. Self-contained, with no assumptions about the user's own setup.                                                                               |
-| `.claude/rules/*.md`     | Path-scoped notes (Vue files, the DB layer). They load only when matching files are touched.                                                                                                                       |
-| `.claude/skills/run-app` | Start, check and stop the dev or production server. The port is chosen from 3000 upward, so several apps can run side by side.                                                                                     |
-| `.claude/skills/verify`  | Replaces the built-in `/verify`: run the app and exercise the changed behaviour; verdict PASS / FAIL / BLOCKED / SKIP. Claude Code runs it before each commit, so it returns SKIP when nothing can be run.         |
-| `.claude/settings.json`  | Hooks only: the post-edit fix, and a session-start hook that installs dependencies when `node_modules` is missing and notes a missing `.env`. No permissions, plugins or attribution; those are the user's choice. |
-| `.worktreeinclude`       | Copies `.env` and `.data/` (with the SQLite file) into new `claude --worktree` checkouts.                                                                                                                          |
-| `.gitignore`             | Adds `CLAUDE.local.md`, `.claude/settings.local.json` and `.claude/worktrees/`.                                                                                                                                    |
+| File                     | Purpose                                                                                                                                                                                                                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLAUDE.md`              | Commands, the imports rule, where things go, env vars, commit style. Self-contained, with no assumptions about the user's own setup.                                                                                                                                                                  |
+| `.claude/rules/*.md`     | Path-scoped notes (Vue files, the DB layer). They load only when matching files are touched.                                                                                                                                                                                                          |
+| `.claude/skills/run-app` | Start, check and stop the dev or production server. The port is chosen from 3000 upward, so several apps can run side by side.                                                                                                                                                                        |
+| `.claude/skills/verify`  | Replaces the built-in `/verify`: run the app and exercise the changed behaviour; verdict PASS / FAIL / BLOCKED / SKIP. Claude Code runs it before each commit, so it returns SKIP when nothing can be run.                                                                                            |
+| `.claude/settings.json`  | Hooks only: the post-edit fix, and a session-start hook that installs dependencies when `node_modules` is missing and notes a missing `.env`. It also fires in new `claude --worktree` sessions (tested on Claude Code 2.1.328). No permissions, plugins or attribution; those are the user's choice. |
+| `.worktreeinclude`       | Copies `.env` and `.data/` (with the SQLite file) into new `claude --worktree` checkouts.                                                                                                                                                                                                             |
+| `.gitignore`             | Adds `CLAUDE.local.md`, `.claude/settings.local.json` and `.claude/worktrees/`.                                                                                                                                                                                                                       |
 
 The template adds no Nuxt-specific skill, no browser-tool choice and no dependency-update automation.
 
@@ -123,7 +123,3 @@ The template adds no Nuxt-specific skill, no browser-tool choice and no dependen
 - **Nuxt 5:** runtime config validation with a Standard Schema such as zod ([nuxt/nuxt#36905](https://github.com/nuxt/nuxt/pull/36905), merged, not in 4.6). Until then nothing validates env vars at boot.
 - **oxlint Vue template support:** the ESLint tier can go once oxlint lints templates.
 - **`@nuxt/test-utils` and Vite+:** the direct `vitest` dependency can go once the duplicate-`vi` issue is fixed.
-
-## Not verified
-
-- **Session-start hook in worktrees:** the Claude Code docs don't say whether `SessionStart` fires for `claude --worktree` sessions.
