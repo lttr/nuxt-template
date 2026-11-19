@@ -14,19 +14,17 @@ One run opens at most one PR. Nothing is automerged.
 
 ## Before you start
 
-- `/maintenance:dependency-update` is not in this repo. It comes from the
-  `maintenance` plugin in the `lttr/claude-marketplace` marketplace, which
-  the cloud environment's setup script installs
-  (`claude plugin install maintenance@lttr-claude-marketplace`). If the skill
-  is missing, stop and say so. Don't improvise the procedure.
-- E2E tests launch the installed Google Chrome (`channel: "chrome"`). If
-  `google-chrome --version` fails, run
-  `vpx playwright-core install --with-deps chrome` once. If that is blocked,
-  say so in **Not verified** and run the other test projects with
+The environment's setup script provides `vp`, Node, pnpm and the plugins
+declared in `.claude/settings.json`; the session-start hook runs `vp install`.
+
+- If `/maintenance:dependency-update` is missing, stop and say so. Don't
+  improvise the procedure.
+- E2E tests need Google Chrome (`channel: "chrome"`), which the setup doesn't
+  install. Run `vpx playwright-core install --with-deps chrome` once. If that
+  fails, note it under **Not verified** and run only
   `vp test --project unit` and `vp test --project nuxt`. Never change the
-  test's browser setup to get around it.
-- Read `docs/decisions.md` in full. It is the record of what the template
-  chose and why, and part 2 is judged against it.
+  test's browser setup.
+- Read `docs/decisions.md` in full. Part 2 is judged against it.
 
 ## Part 1: dependencies
 
