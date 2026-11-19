@@ -17,6 +17,9 @@ export default defineNuxtConfig({
     sharedTsConfig: { include: ["../test/unit/**/*", "../test/e2e/**/*"] },
   },
 
+  // Nitro's default esbuild target (es2019) warns about BigInt literals in Nuxt UI.
+  nitro: { esbuild: { options: { target: "esnext" } } },
+
   experimental: {
     strictRouteTypes: true,
     typescriptPlugin: true,

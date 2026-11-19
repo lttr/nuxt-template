@@ -31,6 +31,7 @@ Versions and behaviour were checked on 2026-11-19 against the npm registry, the 
 | Server imports                          | Follows from Nitro auto-imports being off: server code imports helpers from `nuxt/server`.                                                                                          |
 | `postinstall: nuxt prepare`             | Generates `.nuxt` types, so typecheck and the editor work right after install.                                                                                                      |
 | Minimal scaffold                        | `app.vue` with `UApp`, one page and one example feature (a contact form) that covers a shared schema, a form, an API route and all three test kinds. Replace it with real features. |
+| Nitro esbuild target `esnext`           | Nitro defaults to es2019, which warns about BigInt literals in Nuxt UI. The server runs on the pinned Node, so no downleveling is needed.                                           |
 | `/api/health`                           | One endpoint for uptime checks. The `run-app` skill uses it to tell when the server is ready.                                                                                       |
 | `.env.example`                          | Lists every env var the app reads. Each maps to `runtimeConfig` through the `NUXT_` prefix.                                                                                         |
 
