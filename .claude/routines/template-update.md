@@ -111,8 +111,9 @@ Sort each find into one of two kinds:
 - **Adopt** when the change is small, an official source backs it, and
   `vp run check:all` proves it. Make each one its own commit in the same PR,
   after the dependency commits (`refactor:`, `chore:` or `feat:` as fits).
-  Update `docs/decisions.md` in that commit: what changed and why, with a link
-  to the source. The file must never disagree with the code.
+  Update `docs/decisions.md` in that commit: what changed and why, in a line
+  or two that holds for any app made from the template. Source links go in
+  the PR body. The file must never disagree with the code.
 - **Propose** when the change is bigger, alters a decision rather than
   following from one, or can't be verified in the container. Don't implement
   it. Describe it in the PR body.

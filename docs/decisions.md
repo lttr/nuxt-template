@@ -1,8 +1,8 @@
-# Template decisions
+# Decisions
 
-A starting point for internal full-stack Nuxt apps, built to be worked on by coding agents (Claude Code first). This file records what was chosen and why. `CLAUDE.md` holds the day-to-day rules; the README explains setup.
+What this app's setup chose and why. `CLAUDE.md` holds the day-to-day rules; the README explains setup.
 
-Versions and behaviour were checked on 2026-11-19 against the npm registry, the installed Nuxt schema, the Vite+ CLI and the Claude Code docs.
+Versions and behaviour last checked on 2026-11-19.
 
 ## Principles
 
@@ -13,127 +13,106 @@ Versions and behaviour were checked on 2026-11-19 against the npm registry, the 
 
 ## Runtime and toolchain
 
-| Decision              | Detail                                                                                                                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node 26 (LTS)         | Exact version pinned in `devEngines.runtime`. Vite+ downloads it.                                                                                                                                 |
-| pnpm 12               | Exact version pinned in `devEngines.packageManager`.                                                                                                                                              |
-| Vite+ (`vp`)          | The only toolchain: `vp install`, `vp check` (oxfmt, oxlint, type-aware checks), `vp test`, `vp run`, `vp staged`. It replaces Prettier, husky and lint-staged.                                   |
-| Single package        | No monorepo. Optional parts are Nuxt layers inside the app.                                                                                                                                       |
-| `pnpm-workspace.yaml` | Holds only what Vite+ needs: a catalog that pins `vite-plus` and `vitest` and aliases `vite` to the Vite+ core, overrides that apply it to every dependent, vitest peer rules, and `allowBuilds`. |
-| Scripts               | Plain `package.json` scripts, no `run.tasks` in `vite.config.ts`.                                                                                                                                 |
+| Decision              | Detail                                                                                                                                             |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node 26 (LTS)         | Exact version in `.node-version`. Vite+ downloads it.                                                                                              |
+| pnpm 12               | Exact version in the `packageManager` field of `package.json`.                                                                                     |
+| Vite+ (`vp`)          | The only toolchain: install, check (oxfmt, oxlint, type-aware), test, run, staged. Replaces Prettier, husky and lint-staged.                       |
+| Single package        | No monorepo. Optional parts are Nuxt layers inside the app.                                                                                        |
+| `pnpm-workspace.yaml` | Only what Vite+ needs: a catalog pinning `vite-plus`, `vitest` and `vite` (aliased to the Vite+ core), overrides that apply it, and `allowBuilds`. |
+| Scripts               | Plain `package.json` scripts, no `run.tasks` in `vite.config.ts`.                                                                                  |
 
 ## Nuxt
 
-| Decision                                | Detail                                                                                                                                                                              |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nuxt 4.6 with `compatibilityVersion: 5` | Turns on typed pages, typed `$fetch` routes and case-sensitive routing, and turns off Nitro auto-imports.                                                                           |
-| Extra flags                             | `experimental.strictRouteTypes` (a wrong API path or method is a type error) and `experimental.typescriptPlugin`. Both are off by default.                                          |
-| Server imports                          | Follows from Nitro auto-imports being off: server code imports helpers from `nuxt/server`.                                                                                          |
-| `postinstall: nuxt prepare`             | Generates `.nuxt` types, so typecheck and the editor work right after install.                                                                                                      |
-| Minimal scaffold                        | `app.vue` with `UApp`, one page and one example feature (a contact form) that covers a shared schema, a form, an API route and all three test kinds. Replace it with real features. |
-| Nitro esbuild target `esnext`           | Nitro defaults to es2019, which warns about BigInt literals in Nuxt UI. The server runs on the pinned Node, so no downleveling is needed.                                           |
-| `/api/health`                           | One endpoint for uptime checks. The `run-app` skill uses it to tell when the server is ready.                                                                                       |
-| `.env.example`                          | Lists every env var the app reads. Each maps to `runtimeConfig` through the `NUXT_` prefix.                                                                                         |
+| Decision                                | Detail                                                                                                                               |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Nuxt 4.6 with `compatibilityVersion: 5` | Typed pages, typed `$fetch` routes, case-sensitive routing, no Nitro auto-imports (server code imports from `nuxt/server`).          |
+| Extra flags                             | `experimental.strictRouteTypes` (a wrong API path or method is a type error) and `experimental.typescriptPlugin`.                    |
+| `postinstall: nuxt prepare`             | Types work right after install.                                                                                                      |
+| Example feature                         | A contact form covering a shared schema, a form, an API route and all three test kinds. Replace it with real features.               |
+| Nitro esbuild target `esnext`           | The server runs on the pinned Node, so nothing needs downleveling, and the es2019 default warns about modern syntax in dependencies. |
+| `/api/health`                           | Uptime checks; also how the `run-app` skill knows the server is ready.                                                               |
+| `.env.example`                          | Lists every env var the app reads, each mapped to `runtimeConfig` through the `NUXT_` prefix.                                        |
 
 ## Explicit imports
 
-Project code is imported explicitly; Vue, Nuxt and module APIs stay auto-imported. A reader, or an agent, can rely on one rule: **if something has no import, it comes from the framework or a module.** Agents otherwise tend to invent auto-imports that don't exist.
+Project code is imported explicitly; Vue, Nuxt and module APIs stay auto-imported. So **if something has no import, it comes from the framework or a module**, and agents can't invent auto-imports that don't exist.
 
-- `imports: { scan: false }` and `components: { dirs: [] }`. Module components such as `U*` keep working.
-- Not `imports.autoImport: false`, which would also remove `ref`, `useFetch` and the rest.
-- Lazy components use `defineAsyncComponent(() => import(...))`, because the `Lazy*` prefix only exists for registered components.
-- Libraries are imported explicitly too: `@vueuse/core` instead of the `@vueuse/nuxt` module.
-- Aliases: `~/` for `app/`, `#shared/` for `shared/`; relative paths only for siblings.
-- `antfu/nuxt-explicit-imports` isn't used. It is a migration tool for existing apps, and its strict mode turns off the framework presets.
+- `imports: { scan: false }` and `components: { dirs: [] }`, not `imports.autoImport: false`, which would also remove `ref`, `useFetch` and the rest.
+- Lazy components use `defineAsyncComponent(() => import(...))`; the `Lazy*` prefix only exists for registered components.
+- Libraries too: `@vueuse/core` instead of the `@vueuse/nuxt` module.
 
 ## Modules and libraries
 
-| Included                     | Why                                                                                                                                                            |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@nuxt/ui` (v4)              | Components, forms and theming (`app.config.ts` `ui.colors`). It installs `@nuxt/fonts`, `@nuxt/icon` and color mode itself, so those aren't listed separately. |
-| `@iconify-json/lucide`       | Local icon set, so icons don't need a network request.                                                                                                         |
-| `@nuxt/image`                | Image optimisation.                                                                                                                                            |
-| `@vueuse/core`               | Utility composables.                                                                                                                                           |
-| `zod` (v4)                   | One schema in `shared/`, used by `UForm` on the client and `readValidatedBody` on the server.                                                                  |
-| `@total-typescript/ts-reset` | Safer built-in types (`JSON.parse`, `.filter(Boolean)`), loaded through `reset.d.ts`.                                                                          |
+| Included                     | Why                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| `@nuxt/ui` (v4)              | Components, forms, theming. Brings `@nuxt/fonts`, `@nuxt/icon` and color mode with it. |
+| `@iconify-json/lucide`       | Local icon set, no network request.                                                    |
+| `@nuxt/image`                | Image optimisation.                                                                    |
+| `@vueuse/core`               | Utility composables.                                                                   |
+| `zod` (v4)                   | End-to-end type safety from one schema in `shared/`, used by both client and server.   |
+| `@total-typescript/ts-reset` | Safer built-in types (`JSON.parse`, `.filter(Boolean)`).                               |
 
-Not included: the README lists add-ons to install when needed. Auth and authorization are out of scope.
+Auth and authorization are out of scope. The README lists add-ons to install when needed.
 
 ## Optional add-ons as layers
 
-Add-ons live in `layers/<name>/`, which Nuxt registers automatically. Removing one means deleting the folder plus the few leftovers its README section lists.
+Add-ons live in `layers/<name>/`, which Nuxt registers automatically. Removing one means deleting the folder plus the leftovers its README section lists.
 
-- **`layers/db`:** SQLite through Drizzle and libsql. libsql ships prebuilt binaries, so there is no native build to approve. The DB file lives in `.data/`. Dates use `integer({ mode: "timestamp" })`.
+- **`layers/db`:** SQLite through Drizzle and libsql (prebuilt binaries, no native build). The DB file lives in `.data/`.
 
 ## Lint, format, types
 
-| Decision            | Detail                                                                                                                                                                                                                                                           |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| oxfmt               | `semi: false`, otherwise defaults. Generated DB migrations are ignored.                                                                                                                                                                                          |
-| oxlint              | Type-aware. The `correctness`, `suspicious` and `perf` categories are errors, plus `no-explicit-any` and Vite+'s `prefer-vite-plus-imports`. `style` and `pedantic` stay off: `style` mostly flags key and import order, and `pedantic` gets noisy in real apps. |
-| ESLint, `.vue` only | `@nuxt/eslint` lints only what oxlint can't yet: Vue `<template>` rules (oxlint reads only `<script>`). `eslint-plugin-oxlint` turns off the rules oxlint already covers.                                                                                        |
-| Typecheck           | `nuxt typecheck` (vue-tsc). It covers app, server, shared, config and test code through the generated tsconfig references, and it is the only check that type-checks `.vue` files.                                                                               |
-| TypeScript 6        | TypeScript 7 is out, but vue-tsc crashes on it and typescript-eslint caps its peer range below 6.1.                                                                                                                                                              |
+| Decision            | Detail                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| oxfmt               | `semi: false`, otherwise defaults.                                                                                                   |
+| oxlint              | Type-aware. `correctness`, `suspicious` and `perf` are errors, plus `no-explicit-any`. `style` and `pedantic` stay off as too noisy. |
+| ESLint, `.vue` only | Only for Vue `<template>` rules, which oxlint doesn't read. `eslint-plugin-oxlint` turns off what oxlint covers.                     |
+| Typecheck           | `nuxt typecheck` (vue-tsc) covers app, server, shared, config and tests, and is the only check for `.vue` files.                     |
+| TypeScript 6        | vue-tsc and typescript-eslint don't support 7 yet.                                                                                   |
 
 Vue conventions that lint can't enforce live in `.claude/rules/vue.md`.
 
 ## Tests
 
-The goal is basic coverage through good examples, with no coverage threshold. Agents copy the patterns they see, so there is exactly one example of each kind:
+Basic coverage through good examples, no threshold. Agents copy what they see, so there is one example of each kind:
 
-| Project | Folder       | Tool                                                                                                                                    |
-| ------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| unit    | `test/unit/` | Plain Vitest for functions and schemas.                                                                                                 |
-| nuxt    | `test/nuxt/` | `@nuxt/test-utils` with happy-dom; components through `mountSuspended`.                                                                 |
-| e2e     | `test/e2e/`  | `@nuxt/test-utils/e2e`: `setup()` with `$fetch` for routes, `createPage` (Playwright) for a browser journey against a production build. |
+| Project | Folder       | Tool                                                                                          |
+| ------- | ------------ | --------------------------------------------------------------------------------------------- |
+| unit    | `test/unit/` | Plain Vitest for functions and schemas.                                                       |
+| nuxt    | `test/nuxt/` | `@nuxt/test-utils` with happy-dom; components through `mountSuspended` only.                  |
+| e2e     | `test/e2e/`  | `setup()` with `$fetch` for routes, `createPage` for a browser journey on a production build. |
 
-- Components are mounted with `mountSuspended` only, not Testing Library as well, so agents have one pattern to copy.
-- `vitest` is a direct dependency, and tests import from `vitest` rather than `vite-plus/test`. `@nuxt/test-utils` needs the upstream module; otherwise it gets a duplicate `vi`. The lint rule accepts `vitest` imports because of the direct dependency.
-- The `nuxt` project has its own config file. Defined inline in `vite.config.ts`, it would boot Nuxt on every `vp lint` or `vp fmt` call.
-- The browser test uses the installed Google Chrome through `playwright-core`, so no browser is downloaded.
+- Tests import from `vitest`, a direct dependency: `@nuxt/test-utils` gets a duplicate `vi` through `vite-plus/test`.
+- The `nuxt` project has its own config file, so `vp lint` and `vp fmt` don't boot Nuxt.
+- The browser test uses the installed Google Chrome, so no browser is downloaded.
 
 ## Gates
 
-All checks must pass before code is pushed, but not before every commit: the full run builds the app and is too slow for that.
+| When                  | What                                                                      |
+| --------------------- | ------------------------------------------------------------------------- |
+| After each agent edit | `vp check --fix` on the edited file (Claude Code hook).                   |
+| Pre-commit            | `vp staged`: `vp check --fix` on staged files.                            |
+| Pre-push              | `vp run check:all`: everything, including the build inside the e2e setup. |
 
-| When                  | What                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| After each agent edit | `vp check --fix` on the edited file (Claude Code hook). Remaining errors are shown to Claude.                        |
-| Pre-commit            | `vp staged`: `vp check --fix` on staged files.                                                                       |
-| Pre-push              | `vp run check:all`: check, Vue lint, typecheck, all tests. The e2e setup builds the app, so it catches build errors. |
-
-There is no CI config, because every host differs. The README describes the minimal pipeline.
+No CI config, because every host differs; the README describes the minimal pipeline.
 
 ## Claude Code setup
 
-| File                     | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CLAUDE.md`              | Commands, the imports rule, where things go, env vars, commit style. Self-contained, with no assumptions about the user's own setup.                                                                                                                                                                                                                                                                                                          |
-| `.claude/rules/*.md`     | Path-scoped notes (Vue files, the DB layer). They load only when matching files are touched.                                                                                                                                                                                                                                                                                                                                                  |
-| `.claude/skills/run-app` | Start, check and stop the dev or production server. The port is chosen from 3000 upward, so several apps can run side by side.                                                                                                                                                                                                                                                                                                                |
-| `.claude/skills/verify`  | Replaces the built-in `/verify`: run the app and exercise the changed behaviour; verdict PASS / FAIL / BLOCKED / SKIP. Claude Code runs it before each commit, so it returns SKIP when nothing can be run.                                                                                                                                                                                                                                    |
-| `.claude/settings.json`  | Hooks and plugins. Hooks: the post-edit fix, and a session-start hook that installs dependencies when `node_modules` is missing and notes a missing `.env`. It also fires in new `claude --worktree` sessions (tested on Claude Code 2.1.328). Enables the `maintenance` and `browser` plugins (`lttr/claude-marketplace`) that the upkeep routine and the run/verify skills use. No permissions or attribution; those are the user's choice. |
-| `.worktreeinclude`       | Copies `.env` and `.data/` (with the SQLite file) into new `claude --worktree` checkouts.                                                                                                                                                                                                                                                                                                                                                     |
-| `.gitignore`             | Adds `CLAUDE.local.md`, `.claude/settings.local.json` and `.claude/worktrees/`.                                                                                                                                                                                                                                                                                                                                                               |
-
-The template adds no Nuxt-specific skill. The `browser` plugin is the one browser-tool choice, for the run/verify skills.
+- `CLAUDE.md`: commands, the imports rule, where things go, env vars, commit style.
+- `.claude/rules/`: path-scoped notes that load only when matching files are touched.
+- `.claude/skills/run-app` and `.claude/skills/verify`: run the app, and check a change by exercising it (replaces the built-in `/verify`).
+- `.claude/settings.json`: the post-edit hook, a session-start hook that installs dependencies and notes a missing `.env`, and the plugins the skills rely on. Permissions and attribution are left to the user.
+- `.worktreeinclude`: copies `.env` and `.data/` into new worktrees.
+- `.gitignore`: keeps personal overrides (`CLAUDE.local.md`, `.claude/settings.local.json`) and `.claude/worktrees/` out of git.
 
 ## Upkeep routine
 
-A weekly Claude Code cloud routine keeps the template itself current. Its prompt is one line, "Follow `.claude/routines/template-update.md`.", so the instructions live in the repo and the routine only sets the schedule.
-
-| Routine                                               | ID                              | Schedule                    |
-| ----------------------------------------------------- | ------------------------------- | --------------------------- |
-| nuxt-template: Update dependencies and best practices | `trig_015AaPZqgj5onx3JdidE8WGZ` | Mondays 02:37 Europe/Prague |
-
-- **Part 1** updates dependencies through the `/maintenance:dependency-update` skill from the `maintenance` plugin (`lttr/claude-marketplace`). The routine file adds what that skill can't know: which packages move together, the Vite+ catalog pins, and the **Revisit when** list below as the workaround record.
-- **Part 2** looks for best practices and new possibilities in the release notes and the upstream docs (Nuxt, Nuxt UI, Vite+, Vitest, Claude Code). Small changes backed by an official source are adopted as separate commits that also update this file. Bigger ones are only proposed in the PR body.
-- At most one PR per run, never automerged.
-- Apps created from the template can delete `.claude/routines/`. The routine only exists for this repo.
+A weekly cloud routine (`.claude/routines/`) updates dependencies and adopts new best practices, opening at most one PR. Apps made from the template can delete it.
 
 ## Revisit when
 
 - **TypeScript 7:** once vue-tsc and typescript-eslint support it.
-- **Nuxt 5:** runtime config validation with a Standard Schema such as zod ([nuxt/nuxt#36905](https://github.com/nuxt/nuxt/pull/36905), merged, not in 4.6). Until then nothing validates env vars at boot.
-- **oxlint Vue template support:** the ESLint tier can go once oxlint lints templates.
+- **Nuxt 5:** runtime config validation with a Standard Schema such as zod. Until then nothing validates env vars at boot.
+- **oxlint Vue template support:** the ESLint tier can go.
 - **`@nuxt/test-utils` and Vite+:** the direct `vitest` dependency can go once the duplicate-`vi` issue is fixed.
